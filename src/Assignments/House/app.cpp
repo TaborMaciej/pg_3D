@@ -24,9 +24,15 @@ void SimpleShapeApplication::init() {
 
     // A vector containing the x,y,z vertex coordinates for the triangle.
     std::vector<GLfloat> vertices = {
+            //triangle vertices
             -0.5f, 0.0f, 0.0f,
             0.5f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f};
+            0.0f, 0.5f, 0.0f,
+            //Rectangle vertices
+            -0.5f, 0.0f, 0.0f,
+            0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f };
 
     // Generating the buffer and loading the vertex data into it.
     GLuint v_buffer_handle;
@@ -66,5 +72,6 @@ void SimpleShapeApplication::frame() {
     // Binding the VAO will setup all the required vertex buffers.
     glBindVertexArray(vao_);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLE_STRIP, 3, 4);
     glBindVertexArray(0);
 }
