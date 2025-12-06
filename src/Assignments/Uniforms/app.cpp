@@ -40,10 +40,10 @@ void SimpleShapeApplication::init() {
         0, 1, 2, 3, 4, 5, 6
     };
 
-    float strength = 0.4f;
+    float strength = 0.85f;
     glm::vec3 color = { 1.0f, 1.0f, 1.0f };
 
-    float theta = 1.0 * glm::pi<float>() / 6.0f;
+    constexpr float theta = 1.0 * glm::pi<float>() / 6.0f;
     auto cs = std::cos(theta);
     auto ss = std::sin(theta);
     glm::mat2 rot{ cs,ss,-ss,cs };
