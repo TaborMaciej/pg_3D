@@ -2,12 +2,14 @@
 
 class CameraControler {
 public:
-	CameraControler() :camera_(nullptr) {
+	CameraControler() {
+		camera_ = nullptr;
 		scale_ = 0.01f;
 		LMB_pressed_ = false;
 	}
 
-	CameraControler(Camera* camera) :camera_(camera) {
+	CameraControler(Camera* camera) {
+		camera_ = camera;
 		scale_ = 0.01f;
 		LMB_pressed_ = false;
 	}
