@@ -1,0 +1,2 @@
+Moje rozwi¹zanie oryginalnie u¿ywa³ GL_TRIANGLE_STRIP co pozwoli³o na u¿ycie 7 wierzcho³ków zamiast 9. U¿ywaj¹æ indices mo¿na by by³o uzyskaæ podobny efekt. Takie rozwi¹zanie zaoszczêdza 48B (6 * 4B * 2)
+Gdyby kolor nie mia³ znaczenia mo¿na by by³o usun¹æ kolejne 2 wierzcho³ki co zaoszczêdzi³oby dodatkowe 48B (6 * 4B * 2)

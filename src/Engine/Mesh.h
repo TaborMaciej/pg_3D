@@ -44,6 +44,11 @@ namespace xe {
 
         void draw() const;
 
+        void* map_vertex_buffer();
+        void unmap_vertex_buffer();
+        void* map_index_buffer();
+        void unmap_index_buffer();
+
     private:
 
         GLuint vao_;

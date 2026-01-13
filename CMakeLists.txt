@@ -4,11 +4,17 @@ project(Graphics3DCode CXX C)
 
 add_compile_definitions(ROOT_DIR="${PROJECT_SOURCE_DIR}")
 
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
+
 include(FetchContent)
 include(ExternalProject)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
+
+if (MSVC)
+    add_compile_options(/utf-8)
+endif()
 
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
@@ -68,6 +74,17 @@ FetchContent_Declare(
         GIT_TAG v1.x
 )
 FetchContent_MakeAvailable(spdlog)
+
+set(SPDLOG_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(SPDLOG_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(SPDLOG_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
+if (TARGET spdlog::spdlog_header_only)
+    get_target_property(SPDLOG_INCLUDES spdlog::spdlog_header_only INTERFACE_INCLUDE_DIRECTORIES)
+    if (SPDLOG_INCLUDES)
+        include_directories(${SPDLOG_INCLUDES})
+    endif()
+endif()
 
 
 if (__VS_CODE__)
