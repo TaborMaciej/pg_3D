@@ -20,8 +20,8 @@ void SimpleShapeApplication::init() {
 	// A utility function that reads the shader sources, compiles them and creates the program object
 	// As everything in OpenGL we reference program by an integer "handle".
 	auto program = xe::utils::create_program(
-		{ {GL_VERTEX_SHADER, std::string(ROOT_DIR) + "/src/Engine/shaders/color_vs.glsl"},
-		 {GL_FRAGMENT_SHADER, std::string(ROOT_DIR) + "/src/Engine/shaders/color_fs.glsl"} });
+		{ {GL_VERTEX_SHADER, std::string(ROOT_DIR) + "/src/Engine/shaders/phong_vs.glsl"},
+		 {GL_FRAGMENT_SHADER, std::string(ROOT_DIR) + "/src/Engine/shaders/phong_fs.glsl"} });
 
 	if (!program) {
 		std::cerr << "Invalid program" << std::endl;
@@ -54,7 +54,7 @@ void SimpleShapeApplication::init() {
 	// Generating the uniform buffer (transform)
 	glGenBuffers(1, &u_pvm_buffer_handle);
 	OGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_handle));
-	glBufferData(GL_UNIFORM_BUFFER, 64, nullptr, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 176, nullptr, GL_STATIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_handle);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -78,12 +78,23 @@ void SimpleShapeApplication::init() {
 //This functions is called every frame and does the actual rendering.
 void SimpleShapeApplication::frame() {
 	// Creating the PVM for later use with uniform
-	glm::mat4 PVM = camera_->projection() * camera_->view() * M_;
+	glm::mat4 VM  = camera_->view() * M_;
+	glm::mat4 PVM = camera_->projection() * VM;
+
+	auto R = glm::mat3(VM);
+	auto N = glm::mat3(glm::cross(R[1], R[2]), glm::cross(R[2], R[0]), glm::cross(R[0], R[1]));
 
 	// Loading the data for transformation uniform buffer
 	// PVM is a mat4 so its loaded as 4 vec4 each 16 bytes long (std140)
 	glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_handle);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(glm::mat4), &VM[0]);;
+	glm::vec4 N_col0(N[0], 0.0f);
+	glm::vec4 N_col1(N[1], 0.0f);
+	glm::vec4 N_col2(N[2], 0.0f);
+	glBufferSubData(GL_UNIFORM_BUFFER, 128, sizeof(glm::vec4), &N_col0);
+	glBufferSubData(GL_UNIFORM_BUFFER, 144, sizeof(glm::vec4), &N_col1);
+	glBufferSubData(GL_UNIFORM_BUFFER, 160, sizeof(glm::vec4), &N_col2);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	for (auto m : meshes_)
