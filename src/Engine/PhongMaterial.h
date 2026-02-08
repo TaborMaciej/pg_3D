@@ -1,0 +1,46 @@
+#pragma once
+
+#include <glad/gl.h>
+#include <glm/glm.hpp>
+
+#include "Application/utils.h"
+#include "Engine/Material.h"
+
+namespace xe {
+	class PhongMaterial : public Material {
+	public:
+
+		static void init();
+
+		static GLuint program() { return shader_; }
+
+		PhongMaterial(const glm::vec4 color, GLuint texture, GLuint texture_unit) : Kd_(color), texture_(texture),
+			texture_unit_(texture_unit) {}
+
+		PhongMaterial(const glm::vec4 color, GLuint texture) : PhongMaterial(color, texture, 0) {}
+
+		PhongMaterial(const glm::vec4 color) : PhongMaterial(color, 0) {}
+
+		void set_texture(GLuint tex) { texture_ = tex; }
+		GLuint get_texture(GLuint tex) { return texture_; }
+
+		void set_texture_unit(GLuint tex_unit) { texture_unit_ = tex_unit; }
+		GLuint get_texture_unit(GLuint tex_unit) { return texture_unit_; }
+
+		void bind() override;
+
+		void unbind() override;
+
+	private:
+
+		static GLuint shader_;
+		static GLuint color_uniform_buffer_;
+		static GLint uniform_map_Kd_location_;
+
+		glm::vec4 Kd_;
+		GLuint texture_;
+		GLuint texture_unit_;
+	};
+}
+
+
