@@ -15,6 +15,15 @@
 #include "3rdParty/stb/stb_image.h"
 #include <Engine/mesh_loader.h>
 
+namespace {
+	constexpr glm::uint kMaxPointLights = 24;
+
+	struct PointLightGpu {
+		alignas(16) glm::vec4 position_in_view_space; // xyz used
+		alignas(16) glm::vec4 color;                  // xyz used
+		alignas(16) glm::vec4 intensity_radius;       // x=intensity, y=radius
+	};
+}
 
 void SimpleShapeApplication::init() {
 	// A utility function that reads the shader sources, compiles them and creates the program object
@@ -58,10 +67,20 @@ void SimpleShapeApplication::init() {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_handle);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	glGenBuffers(1, &u_light_buffer_handle);
+	glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer_handle);
+	glBufferData(GL_UNIFORM_BUFFER, 32 + sizeof(PointLightGpu) * kMaxPointLights, nullptr, GL_DYNAMIC_DRAW);
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 2, u_light_buffer_handle);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	auto pyramid = xe::load_mesh_from_obj(std::string(ROOT_DIR) + "/Models/square.obj", std::string(ROOT_DIR) + "/Models");
 
-
 	add_submesh(pyramid);
+
+	add_ambient(glm::vec3(1.0f, 0.0f, 0.0f));
+	auto light = new xe::PointLight(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), 2.0f, 45.0f);
+	add_light(*light);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -95,6 +114,35 @@ void SimpleShapeApplication::frame() {
 	glBufferSubData(GL_UNIFORM_BUFFER, 128, sizeof(glm::vec4), &N_col0);
 	glBufferSubData(GL_UNIFORM_BUFFER, 144, sizeof(glm::vec4), &N_col1);
 	glBufferSubData(GL_UNIFORM_BUFFER, 160, sizeof(glm::vec4), &N_col2);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	for (auto& light : p_lights_) {
+		glm::vec4 pos_vs = VM * glm::vec4(light.position_in_ws, 1.0f);
+		light.position_in_vs = glm::vec3(pos_vs);
+	}
+
+	glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer_handle);
+
+	glm::vec4 ambient4(ambient_, 0.0f);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), &ambient4);
+
+	glm::uint n = static_cast<glm::uint>(p_lights_.size());
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::uint), &n);
+
+	std::vector<PointLightGpu> gpu_lights;
+	gpu_lights.reserve(p_lights_.size());
+	for (const auto& light : p_lights_) {
+		PointLightGpu gpu{};
+		gpu.position_in_view_space = glm::vec4(light.position_in_vs, 0.0f);
+		gpu.color = glm::vec4(light.color, 0.0f);
+		gpu.intensity_radius = glm::vec4(light.intensity, light.radius, 0.0f, 0.0f);
+		gpu_lights.push_back(gpu);
+	}
+
+	if (!gpu_lights.empty()) {
+		glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(PointLightGpu) * gpu_lights.size(), gpu_lights.data());
+	}
+
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	for (auto m : meshes_)

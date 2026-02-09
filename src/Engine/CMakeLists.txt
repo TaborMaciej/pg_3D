@@ -9,6 +9,6 @@ add_library(engine
         mesh_loader.cpp mesh_loader.h 
         ColorMaterial.cpp ColorMaterial.h 
         texture.cpp texture.h
-        PhongMaterial.cpp PhongMaterial.h)
+        PhongMaterial.cpp PhongMaterial.h "Light.h")
 
 target_link_libraries(engine PUBLIC objreader xe-engine)

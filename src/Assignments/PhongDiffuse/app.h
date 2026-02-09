@@ -12,6 +12,7 @@
 #include "Engine/Mesh.h"
 #include "Engine/ColorMaterial.h"
 #include "Engine/PhongMaterial.h"
+#include "Engine/Light.h"
 
 class SimpleShapeApplication : public xe::Application
 {
@@ -38,6 +39,14 @@ public:
         meshes_.push_back(mesh);
     }
 
+    void add_light(const xe::PointLight& p_light) {
+        p_lights_.push_back(p_light);
+    }
+
+    void add_ambient(glm::vec3 ambient) {
+        ambient_ = ambient;
+    }
+
     Camera* camera() { return camera_; }
     CameraControler* controler() { return controler_; }
     std::vector<xe::Mesh*> meshes() { return meshes_; }
@@ -54,6 +63,7 @@ private:
     std::vector<xe::Mesh*> meshes_;
 
     GLuint u_pvm_buffer_handle;
+    GLuint u_light_buffer_handle;
     float angle_ = 0.0f;
 
     glm::vec3 axis_;
@@ -61,4 +71,7 @@ private:
     glm::vec3 translate_;
 
     glm::mat4 M_;
+
+    glm::vec3 ambient_;
+    std::vector<xe::PointLight> p_lights_;
 };
