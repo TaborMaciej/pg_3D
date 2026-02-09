@@ -2,9 +2,11 @@
 
 layout(location=0) out vec4 vFragColor;
 
-layout(std140, binding=0) uniform Modifiers {
-    vec4  Kd;
-    bool use_map_Kd;
+layout(std140, binding=0) uniform Material {
+    vec4 Ka;
+    vec4 Kd;
+    vec4 Ks;
+    vec4 Ns_use_map;
 };
 
 const int MAX_POINT_LIGHTS=24;
@@ -29,16 +31,16 @@ uniform sampler2D map_Kd;
 
 void main() {
     vec3 baseColor = Kd.rgb;
-    if (use_map_Kd)
+    if (Ns_use_map.y > 0.5)
         baseColor *= texture(map_Kd, vertex_texcoords).rgb;
 
     vec3 normal = normalize(vertex_normals_in_vs);
     vec3 view_dir = normalize(-vertex_coords_in_vs);
-    float Ns = 500.0;
-    vec3 Ks = vec3(1.0);
+    float Ns = Ns_use_map.x;
+    vec3 Ks_color = Ks.rgb;
 
     uint n = n_p_lights.x;
-    vec3 color = baseColor * ambient.xyz;
+    vec3 color = Ka.rgb * ambient.xyz;
 
     for (uint i = 0u; i < n; ++i) {
         vec3 lightPos = p_light[i].position_in_view_space.xyz;
@@ -55,7 +57,7 @@ void main() {
         }
 
         color += baseColor * light_color * diff;
-        color += Ks * light_color * spec;
+        color += Ks_color * light_color * spec;
     }
 
     vFragColor = vec4(color, Kd.a);

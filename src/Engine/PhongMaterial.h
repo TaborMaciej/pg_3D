@@ -14,18 +14,25 @@ namespace xe {
 
 		static GLuint program() { return shader_; }
 
-		PhongMaterial(const glm::vec4 color, GLuint texture, GLuint texture_unit) : Kd_(color), texture_(texture),
-			texture_unit_(texture_unit) {}
-
-		PhongMaterial(const glm::vec4 color, GLuint texture) : PhongMaterial(color, texture, 0) {}
+		PhongMaterial(const glm::vec4 color, GLuint texture)
+			: Ka(0.0f, 0.0f, 0.0f, 1.0f),
+			  Kd(color),
+			  Ks(0.0f, 0.0f, 0.0f, 1.0f),
+			  Ns(0.0f),
+			  map_Kd(texture),
+			  map_Kd_unit(0u) {}
 
 		PhongMaterial(const glm::vec4 color) : PhongMaterial(color, 0) {}
 
-		void set_texture(GLuint tex) { texture_ = tex; }
-		GLuint get_texture(GLuint tex) { return texture_; }
+		void set_map_Kd(GLuint tex) { map_Kd = tex; }
+		GLuint get_map_Kd() const { return map_Kd; }
 
-		void set_texture_unit(GLuint tex_unit) { texture_unit_ = tex_unit; }
-		GLuint get_texture_unit(GLuint tex_unit) { return texture_unit_; }
+		glm::vec4 Ka;
+		glm::vec4 Kd;
+		glm::vec4 Ks;
+		float Ns;
+		GLuint map_Kd;
+		const GLuint map_Kd_unit;
 
 		void bind() override;
 
@@ -34,12 +41,8 @@ namespace xe {
 	private:
 
 		static GLuint shader_;
-		static GLuint color_uniform_buffer_;
+		static GLuint material_uniform_buffer_;
 		static GLint uniform_map_Kd_location_;
-
-		glm::vec4 Kd_;
-		GLuint texture_;
-		GLuint texture_unit_;
 	};
 }
 

@@ -159,11 +159,14 @@ namespace xe {
             color[3] = 1.0;
             spdlog::debug("Adding PhongMaterial {}", glm::to_string(color));
             auto material = new xe::PhongMaterial(color);
+            material->Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1.0f);
+            material->Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1.0f);
+            material->Ns = mat.shininess > 0.0f ? mat.shininess : 500.0f;
             if (!mat.diffuse_texname.empty()) {
                 auto texture = xe::create_texture(mtl_dir + "/" + mat.diffuse_texname);
                 spdlog::debug("Adding Texture {} {:1d}", mat.diffuse_texname, texture);
                 if (texture > 0) {
-                    material->set_texture(texture);
+                    material->set_map_Kd(texture);
                 }
             }
 
