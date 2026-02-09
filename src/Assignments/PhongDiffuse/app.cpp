@@ -79,7 +79,7 @@ void SimpleShapeApplication::init() {
 	add_submesh(pyramid);
 
 	add_ambient(glm::vec3(1.0f, 0.0f, 0.0f));
-	auto light = new xe::PointLight(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), 2.0f, 45.0f);
+	auto light = new xe::PointLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 1.0f), 2.0f, 45.0f);
 	add_light(*light);
 
 	glEnable(GL_CULL_FACE);

@@ -33,6 +33,9 @@ void main() {
         baseColor *= texture(map_Kd, vertex_texcoords).rgb;
 
     vec3 normal = normalize(vertex_normals_in_vs);
+    vec3 view_dir = normalize(-vertex_coords_in_vs);
+    float Ns = 500.0;
+    vec3 Ks = vec3(1.0);
 
     uint n = n_p_lights.x;
     vec3 color = baseColor * ambient.xyz;
@@ -42,7 +45,17 @@ void main() {
         vec3 L = normalize(lightPos - vertex_coords_in_vs);
         float diff = max(dot(normal, L), 0.0);
         float intensity = p_light[i].intensity_radius.x;
-        color += baseColor * p_light[i].color.xyz * intensity * diff;
+        vec3 light_color = p_light[i].color.xyz * intensity;
+
+        vec3 H = normalize(L + view_dir);
+        float spec = 0.0;
+        float NdotH = max(dot(normal, H), 0.0);
+        if (NdotH > 0.0) {
+            spec = pow(NdotH, Ns);
+        }
+
+        color += baseColor * light_color * diff;
+        color += Ks * light_color * spec;
     }
 
     vFragColor = vec4(color, Kd.a);
